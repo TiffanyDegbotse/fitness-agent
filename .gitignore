@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+.DS_Store
+
+# Eval output
+eval/eval_results.json
