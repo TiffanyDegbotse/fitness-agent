@@ -1,4 +1,4 @@
-# FitAgent 🏃 — AI-Powered Fitness Coach
+# FitAgent 🏃 AI-Powered Fitness Coach
 
 FitAgent is an LLM-based agent that acts as your personal fitness coach. It analyzes your step data from Apple Health or Google Fit, calculates calories burned, identifies trends, and gives personalized advice — all through a conversational chat interface.
 
