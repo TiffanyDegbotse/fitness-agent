@@ -21,7 +21,7 @@ export default function Setup({ userProfile, setUserProfile, setStepData, goal, 
     const fd = new FormData()
     fd.append('file', file)
     try {
-      const res = await fetch('http://localhost:8000/api/upload/apple-health', { method: 'POST', body: fd })
+      const res = await fetch('https://fitness-agent-backend-org7.onrender.com/api/upload/apple-health', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) { setError(data.detail || 'Upload failed'); return }
       setStepData(data.step_data)
