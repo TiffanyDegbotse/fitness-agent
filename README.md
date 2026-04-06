@@ -4,7 +4,7 @@ FitAgent is an LLM-based agent that acts as your personal fitness coach. It anal
 
 ## Features
 
-- **Agent loop written from scratch** — no LangChain, CrewAI, or other frameworks
+- **Agent loop written from scratch**
 - **7 tools** the agent can call: calorie calculator, trend analyzer, fitness advice engine, goal setter, goal progress tracker, Apple Health parser, Google Fit fetcher
 - **Two data import methods**: Apple Health CSV/XML upload or Google Fit OAuth
 - **React dashboard** with interactive charts (area chart, bar chart, stat cards)
