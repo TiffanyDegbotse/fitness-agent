@@ -35,15 +35,9 @@ export default function Setup({ userProfile, setUserProfile, setStepData, goal, 
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'text/csv': ['.csv'], 'text/xml': ['.xml'], 'application/xml': ['.xml'] },
+    accept: { 'text/csv': ['.csv'], 'application/vnd.ms-excel': ['.csv'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
     maxFiles: 1,
   })
-
-  const connectGoogleFit = async () => {
-    const res = await fetch('/auth/google')
-    const data = await res.json()
-    window.location.href = data.auth_url
-  }
 
   const saveProfile = () => {
     if (!form.name) { setError('Please enter your name'); return }
@@ -137,52 +131,39 @@ export default function Setup({ userProfile, setUserProfile, setStepData, goal, 
           <h2 style={{ fontFamily: 'Syne', fontSize: 16, fontWeight: 700, marginBottom: 4, color: 'var(--brand)' }}>
             03 — Import Step Data
           </h2>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-            Choose one method below — or skip and add data later.
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 6 }}>
+            Upload a CSV file with your step data. It needs two columns: <code style={{ background: 'var(--surface)', padding: '1px 6px', borderRadius: 4 }}>date</code> and <code style={{ background: 'var(--surface)', padding: '1px 6px', borderRadius: 4 }}>steps</code>.
+          </p>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
+            Example: <code style={{ background: 'var(--surface)', padding: '1px 6px', borderRadius: 4 }}>2024-01-01, 8500</code> — or skip and use sample data on the dashboard.
           </p>
 
-          {/* Apple Health */}
-          <div style={{ marginBottom: 16 }}>
-            <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>
-              📱 Apple Health (iPhone)
-            </p>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
-              Open Health app → tap your profile → Export All Health Data → share the CSV or XML file here
-            </p>
-            <div
-              {...getRootProps()}
-              style={{
-                border: `2px dashed ${isDragActive ? 'var(--brand)' : 'var(--border)'}`,
-                borderRadius: 10, padding: '24px 16px', textAlign: 'center',
-                cursor: 'pointer', transition: 'border-color 0.15s',
-                background: isDragActive ? 'rgba(34,197,94,0.05)' : 'transparent',
-              }}
-            >
-              <input {...getInputProps()} />
-              {uploading
-                ? <p style={{ color: 'var(--brand)', fontSize: 13 }}>Parsing file…</p>
-                : uploadResult
-                  ? <p style={{ color: 'var(--brand)', fontSize: 13 }}>
-                      ✓ {uploadResult.days} days imported from {uploadResult.source}
+          <div
+            {...getRootProps()}
+            style={{
+              border: `2px dashed ${isDragActive ? 'var(--brand)' : 'var(--border)'}`,
+              borderRadius: 10, padding: '32px 16px', textAlign: 'center',
+              cursor: 'pointer', transition: 'border-color 0.15s',
+              background: isDragActive ? 'rgba(34,197,94,0.05)' : 'transparent',
+            }}
+          >
+            <input {...getInputProps()} />
+            {uploading
+              ? <p style={{ color: 'var(--brand)', fontSize: 13 }}>Parsing file…</p>
+              : uploadResult
+                ? <p style={{ color: 'var(--brand)', fontSize: 13 }}>
+                    ✓ {uploadResult.days} days imported successfully!
+                  </p>
+                : <>
+                    <p style={{ fontSize: 24, marginBottom: 8 }}>📂</p>
+                    <p style={{ color: 'var(--text-primary)', fontSize: 14, marginBottom: 4 }}>
+                      Drop your CSV here, or click to browse
                     </p>
-                  : <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>
-                      Drop your export.csv or export.xml here, or click to browse
+                    <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>
+                      Supports .csv files with date + steps columns
                     </p>
-              }
-            </div>
-          </div>
-
-          {/* Google Fit */}
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 16 }}>
-            <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>
-              🤖 Google Fit (Android / cross-platform)
-            </p>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
-              Connect your Google account to automatically pull the last 30 days of step data.
-            </p>
-            <button className="btn-ghost" onClick={connectGoogleFit} style={{ fontSize: 13 }}>
-              Connect Google Fit →
-            </button>
+                  </>
+            }
           </div>
         </section>
 
