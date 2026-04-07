@@ -51,23 +51,32 @@ function Message({ msg }) {
   )
 }
 
-export default function Chat({ stepData, userProfile, goal }) {
-  const [messages, setMessages] = useState([])     // display messages
-  const [apiMessages, setApiMessages] = useState([]) // full API message history
+function extractGoalFromResponse(text) {
+  const match = text.match(/(\d[\d,]+)\s*steps?/i)
+  if (match && (text.toLowerCase().includes('goal') || text.toLowerCase().includes('set'))) {
+    const steps = parseInt(match[1].replace(/,/g, ''))
+    if (steps >= 1000 && steps <= 50000) return steps
+  }
+  return null
+}
+
+export default function Chat({ stepData, userProfile, goal, setGoal }) {
+  const [messages, setMessages] = useState([])
+  const [apiMessages, setApiMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [goalBanner, setGoalBanner] = useState(null)
   const bottomRef = useRef(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
 
-  // Greeting on first load
   useEffect(() => {
     const name = userProfile?.name ? `, ${userProfile.name}` : ''
     const dataNote = stepData.length > 0
       ? `I can see ${stepData.length} days of your step data. `
-      : 'I don\'t have your step data yet — you can upload it in Setup. '
+      : "I don't have your step data yet — you can upload it in Setup. "
     setMessages([{
       role: 'assistant',
       content: `Hey${name}! 👋 I'm FitAgent, your AI fitness coach. ${dataNote}What would you like to know about your fitness?`,
@@ -78,6 +87,7 @@ export default function Chat({ stepData, userProfile, goal }) {
     const userText = text || input.trim()
     if (!userText || loading) return
     setInput('')
+    setGoalBanner(null)
 
     const newDisplay = [...messages, { role: 'user', content: userText }]
     setMessages(newDisplay)
@@ -97,6 +107,15 @@ export default function Chat({ stepData, userProfile, goal }) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.detail || 'Request failed')
+
+      if (userText.toLowerCase().includes('goal') || userText.toLowerCase().includes('set')) {
+        const newGoalSteps = extractGoalFromResponse(data.response)
+        if (newGoalSteps) {
+          setGoal({ type: 'steps', daily_target: newGoalSteps })
+          setGoalBanner(newGoalSteps)
+          setTimeout(() => setGoalBanner(null), 5000)
+        }
+      }
 
       setMessages([...newDisplay, { role: 'assistant', content: data.response }])
       setApiMessages(data.messages)
@@ -118,7 +137,21 @@ export default function Chat({ stepData, userProfile, goal }) {
       height: 'calc(100vh - 60px)',
       padding: '0 24px',
     }}>
-      {/* Messages */}
+
+      {goalBanner && (
+        <div className="fade-in" style={{
+          background: 'rgba(34,197,94,0.12)',
+          border: '1px solid rgba(34,197,94,0.3)',
+          borderRadius: 10, padding: '10px 16px',
+          marginTop: 16, display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <span style={{ fontSize: 18 }}>🎯</span>
+          <span style={{ fontSize: 13, color: 'var(--brand)', fontFamily: 'Syne', fontWeight: 600 }}>
+            Goal updated to {goalBanner.toLocaleString()} steps/day — Dashboard has been updated!
+          </span>
+        </div>
+      )}
+
       <div style={{ flex: 1, overflowY: 'auto', padding: '28px 0 16px' }}>
         {messages.map((m, i) => <Message key={i} msg={m} />)}
         {loading && (
@@ -141,7 +174,6 @@ export default function Chat({ stepData, userProfile, goal }) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Suggestions */}
       {messages.length <= 1 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
           {SUGGESTED.map(s => (
@@ -164,7 +196,6 @@ export default function Chat({ stepData, userProfile, goal }) {
         </div>
       )}
 
-      {/* Input */}
       <div className="card" style={{
         display: 'flex', alignItems: 'flex-end', gap: 10,
         padding: '12px 14px', marginBottom: 20,
