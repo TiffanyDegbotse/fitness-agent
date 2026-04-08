@@ -4,9 +4,9 @@ FitAgent is an LLM-based agent that acts as your personal fitness coach. It anal
 
 ## Features
 
-- **Agent loop written from scratch** — no LangChain, CrewAI, or other frameworks
+- **Agent loop**
 - **6 tools** the agent can call: calorie calculator, trend analyzer, fitness advice engine, goal setter, goal progress tracker, CSV parser
-- **React dashboard** with interactive charts (area chart, bar chart, stat cards)
+- **React dashboard** with interactive charts 
 - **Chat interface** to talk to the agent naturally
 - **Two evaluation suites** — tool accuracy tests (30 tests, 100%) and full agent quality tests (7 scenarios, 97.1%)
 
@@ -99,7 +99,7 @@ Open http://localhost:3000 in your browser.
 1. **Setup page**: Enter your profile (name, age, weight, height) and set a daily goal
 2. **Import data**: Upload a CSV file with `date` and `steps` columns
 3. **Dashboard**: View your step charts and stats
-4. **Chat**: Ask FitAgent anything — it uses tools automatically
+4. **Chat**: Ask FitAgent anything, it uses tools automatically
 
 **Quick test with sample data**: Upload `data/samples/sample_steps.csv` on the Setup page.
 
@@ -162,7 +162,6 @@ The agent loop is in `backend/agent.py`:
 3. **Tool execution** — if the LLM calls a tool, executes it and feeds the result back
 4. **Loop** — repeats until `stop_reason == "end_turn"` (max 10 iterations to prevent infinite loops)
 
-No frameworks are used. The loop is ~60 lines of plain Python.
 
 ### Tools
 
