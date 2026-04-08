@@ -1,7 +1,6 @@
 """
 FitAgent - LLM-powered fitness coaching agent.
 Implements the agent loop (planning → tool selection → execution → response).
-No frameworks used - pure Python agent loop.
 """
 from dotenv import load_dotenv
 load_dotenv()

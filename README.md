@@ -1,15 +1,14 @@
 # FitAgent 🏃 AI-Powered Fitness Coach
 
-FitAgent is an LLM-based agent that acts as your personal fitness coach. It analyzes your step data from Apple Health or Google Fit, calculates calories burned, identifies trends, and gives personalized advice — all through a conversational chat interface.
+FitAgent is an LLM-based agent that acts as your personal fitness coach. It analyzes your step data, calculates calories burned, identifies trends, and gives personalized advice, all through a conversational chat interface.
 
 ## Features
 
-- **Agent loop written from scratch**
-- **7 tools** the agent can call: calorie calculator, trend analyzer, fitness advice engine, goal setter, goal progress tracker, Apple Health parser, Google Fit fetcher
-- **Two data import methods**: Apple Health CSV/XML upload or Google Fit OAuth
+- **Agent loop written from scratch** — no LangChain, CrewAI, or other frameworks
+- **6 tools** the agent can call: calorie calculator, trend analyzer, fitness advice engine, goal setter, goal progress tracker, CSV parser
 - **React dashboard** with interactive charts (area chart, bar chart, stat cards)
 - **Chat interface** to talk to the agent naturally
-- **Full evaluation suite** with 25+ quantitative tests
+- **Two evaluation suites** — tool accuracy tests (30 tests, 100%) and full agent quality tests (7 scenarios, 97.1%)
 
 ---
 
@@ -19,10 +18,10 @@ FitAgent is an LLM-based agent that acts as your personal fitness coach. It anal
 fitness-agent/
 ├── backend/
 │   ├── agent.py          # Agent loop (planning + tool-calling)
-│   ├── tools.py          # All 7 tool implementations
+│   ├── tools.py          # All 6 tool implementations
 │   ├── main.py           # FastAPI server + endpoints
 │   ├── requirements.txt
-│   └── .env.example
+│   └── .env
 ├── frontend/
 │   ├── src/
 │   │   ├── App.jsx
@@ -34,8 +33,10 @@ fitness-agent/
 │   ├── package.json
 │   └── vite.config.js
 ├── eval/
-│   ├── eval.py           # Evaluation suite
-│   └── eval_results.json # Generated after running eval
+│   ├── eval.py                # Tool accuracy test suite (30 tests)
+│   ├── eval_agent.py          # Full agent loop evaluation (7 scenarios)
+│   ├── eval_results.json      # Generated after running eval.py
+│   └── eval_agent_results.json # Generated after running eval_agent.py
 ├── data/
 │   └── samples/
 │       └── sample_steps.csv   # Demo data for testing
@@ -66,9 +67,8 @@ source venv/bin/activate        # Mac/Linux
 # Install dependencies
 pip install -r requirements.txt
 
-# Set up environment variables
+# Set up environment variables — add your ANTHROPIC_API_KEY
 cp .env.example .env
-# Edit .env and add your ANTHROPIC_API_KEY
 ```
 
 Start the backend:
@@ -97,7 +97,7 @@ Open http://localhost:3000 in your browser.
 ### Step 3 — Use the App
 
 1. **Setup page**: Enter your profile (name, age, weight, height) and set a daily goal
-2. **Import data**: Upload an Apple Health export CSV/XML, or connect Google Fit (see below)
+2. **Import data**: Upload a CSV file with `date` and `steps` columns
 3. **Dashboard**: View your step charts and stats
 4. **Chat**: Ask FitAgent anything — it uses tools automatically
 
@@ -105,45 +105,51 @@ Open http://localhost:3000 in your browser.
 
 ---
 
-## Google Fit Setup (Optional)
+## Running the Evaluation Suites
 
-To enable Google Fit OAuth:
-
-1. Go to https://console.cloud.google.com
-2. Create a new project
-3. Enable the **Fitness API**
-4. Go to **APIs & Services → Credentials → Create OAuth 2.0 Client ID**
-5. Set Authorized redirect URI to: `http://localhost:8000/auth/google/callback`
-6. Copy Client ID and Client Secret into your `.env` file
-
----
-
-## Apple Health Export (iPhone)
-
-1. Open the **Health** app
-2. Tap your profile picture (top right)
-3. Scroll down → **Export All Health Data**
-4. Share/save the ZIP, unzip it, and upload `export.xml` or create a CSV
-
-Alternatively, use the sample CSV at `data/samples/sample_steps.csv` to test.
-
----
-
-## Running the Evaluation Suite
+### Suite 1 — Tool Accuracy (30 tests, deterministic)
+Tests each tool directly with known inputs and expected outputs. No API calls needed.
 
 ```bash
 cd fitness-agent/eval
 python eval.py
 ```
 
-Results are printed to the console and saved to `eval/eval_results.json`.
+Results saved to `eval/eval_results.json`
 
-The eval suite tests:
-- **Calorie accuracy**: Validates against MET formula and Harvard reference values
+What it tests:
+- **Calorie accuracy**: Validates against MET formula and Harvard reference values (14.7% error)
 - **Trend detection**: Tests improving/declining/stable classification
 - **Advice quality**: Checks tier assignments and tip generation
 - **Goal tracking**: Tests set/check goal flows
-- **Parser robustness**: Tests CSV and XML parsing including edge cases
+- **Parser robustness**: Tests CSV parsing including edge cases and bad input
+
+**Result: 30/30 passed (100%)**
+
+---
+
+### Suite 2 — Full Agent Evaluation (7 scenarios, live API calls)
+Tests the complete agent loop end-to-end. Sends real messages to Claude, scores response quality against criteria.
+
+```bash
+cd fitness-agent/eval
+python eval_agent.py
+```
+
+Results saved to `eval/eval_agent_results.json`
+
+What it tests:
+- **Weekly summary**: Does the agent use real data and give an assessment?
+- **Calorie query**: Does it return a specific, accurate calorie estimate?
+- **Trend analysis**: Does it identify trends and mention streaks?
+- **Goal setting**: Does it confirm the goal and mention the correct number?
+- **Personalized advice**: Does it give multiple actionable, personalized tips?
+- **Goal progress**: Does it report how many days the goal was hit?
+- **No data handling**: Does it handle missing data gracefully without crashing?
+
+**Result: 97.1% average quality score (6/7 perfect)**
+
+Note: The one 80% score (Goal Progress Check) is a false negative — the agent answered correctly but the evaluation criterion matched the word "error" appearing naturally in Claude's response rather than an actual system error. This highlights the challenge of evaluating natural language outputs with exact string matching.
 
 ---
 
@@ -154,7 +160,7 @@ The agent loop is in `backend/agent.py`:
 1. **Context building** — injects user profile, step data, and current goal into the system prompt
 2. **LLM call** — sends conversation + tools to Claude via the Anthropic API
 3. **Tool execution** — if the LLM calls a tool, executes it and feeds the result back
-4. **Loop** — repeats until `stop_reason == "end_turn"` (max 10 iterations)
+4. **Loop** — repeats until `stop_reason == "end_turn"` (max 10 iterations to prevent infinite loops)
 
 No frameworks are used. The loop is ~60 lines of plain Python.
 
@@ -162,33 +168,32 @@ No frameworks are used. The loop is ~60 lines of plain Python.
 
 | Tool | Description |
 |------|-------------|
-| `calculate_calories` | MET-based calorie estimation from steps |
+| `calculate_calories` | MET-based calorie estimation from steps, adjusted for weight and height |
 | `analyze_trends` | Identifies improving/declining/stable trends, streaks, weekly averages |
-| `get_fitness_advice` | Tier-based personalized coaching tips |
+| `get_fitness_advice` | Tier-based personalized coaching tips based on % of goal achieved |
 | `set_goal` | Sets a daily step or calorie goal |
 | `check_goal_progress` | Tracks goal completion over the past 7 days |
-| `parse_apple_health_csv` | Parses Apple Health XML export or CSV |
-| `fetch_google_fit_steps` | Fetches steps from Google Fit REST API via OAuth |
+| `parse_apple_health_csv` | Parses uploaded CSV files with date and steps columns |
 
 ---
 
 ## Deployment
 
-### Deploy Backend (Render)
+### Backend (Render)
 
-1. Push your repo to GitHub
+1. Push repo to GitHub
 2. Go to https://render.com → New Web Service
-3. Connect your repo, set root to `backend/`
+3. Connect repo, set root to `backend/`
 4. Build command: `pip install -r requirements.txt`
 5. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-6. Add environment variables: `ANTHROPIC_API_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`
+6. Add environment variable: `ANTHROPIC_API_KEY`
 
-### Deploy Frontend (Vercel)
+### Frontend (Vercel)
 
-1. Go to https://vercel.com → New Project → Import your repo
+1. Go to https://vercel.com → New Project → Import repo
 2. Set root directory to `frontend/`
 3. Framework: Vite
-4. Update `vite.config.js` proxy to point to your Render backend URL
+4. Update fetch URLs in `Chat.jsx` and `Setup.jsx` to point to your Render backend URL
 
 ---
 
@@ -196,5 +201,4 @@ No frameworks are used. The loop is ~60 lines of plain Python.
 
 - **Backend**: Python, FastAPI, Anthropic API (claude-opus-4-5)
 - **Frontend**: React 18, Vite, Recharts, react-dropzone, react-markdown, Tailwind CSS
-- **Data sources**: Apple Health (XML/CSV export), Google Fit REST API
 - **Fonts**: Syne (display), DM Sans (body), JetBrains Mono

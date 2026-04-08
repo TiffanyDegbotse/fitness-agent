@@ -108,7 +108,7 @@ export default function Chat({ stepData, userProfile, goal, setGoal }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.detail || 'Request failed')
 
-      if (userText.toLowerCase().includes('goal') || userText.toLowerCase().includes('set')) {
+      if (userText.toLowerCase().includes('set') && userText.toLowerCase().includes('goal')) {
         const newGoalSteps = extractGoalFromResponse(data.response)
         if (newGoalSteps) {
           setGoal({ type: 'steps', daily_target: newGoalSteps })
