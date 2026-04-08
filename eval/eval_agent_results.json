@@ -1,0 +1,64 @@
+{
+  "agent_quality_score_pct": 97.1,
+  "tests_run": 7,
+  "perfect_scores": 6,
+  "avg_response_time_s": 10.84,
+  "individual_scores": [
+    {
+      "test": "Weekly Summary",
+      "score": 100,
+      "passed_criteria": 5,
+      "total_criteria": 5,
+      "response_time_s": 15.62,
+      "response_preview": "Here's your week at a glance (Apr 1-7):\n\n**\ud83d\udcca This Week's Stats**\n| Day | Steps | Goal |\n|-----|-------|------|\n| Mon (4/1) | 9,800 | \u274c |\n| Tue (4/2) | 6,500 | \u274c |\n| Wed (4/3) | 10,200 | \u2705 |\n| Thu (4/4"
+    },
+    {
+      "test": "Calorie Query",
+      "score": 100,
+      "passed_criteria": 5,
+      "total_criteria": 5,
+      "response_time_s": 7.58,
+      "response_preview": "Yesterday (April 7th) you walked **9,200 steps** and burned approximately **317 calories** from that activity! \ud83d\udd25\n\nHere's the breakdown:\n- **Distance covered:** ~6.5 km\n- **Active time:** ~78 minutes o"
+    },
+    {
+      "test": "Trend Analysis",
+      "score": 100,
+      "passed_criteria": 5,
+      "total_criteria": 5,
+      "response_time_s": 14.87,
+      "response_preview": "Here's your **30-day step trend analysis**, TestUser! \ud83d\udcca\n\n## Overview\n| Metric | Value |\n|--------|-------|\n| **Daily Average** | 9,243 steps |\n| **Best Day** | 11,500 steps (Mar 22) \ud83c\udfc6 |\n| **Lowest Day"
+    },
+    {
+      "test": "Goal Setting",
+      "score": 100,
+      "passed_criteria": 5,
+      "total_criteria": 5,
+      "response_time_s": 6.88,
+      "response_preview": "Done! \u2705 Your new daily step goal is set to **8,000 steps**.\n\nLooking at your recent activity, you've been averaging around 9,200 steps per day over the last 30 days \u2014 which means you're already crushi"
+    },
+    {
+      "test": "Personalized Advice",
+      "score": 100,
+      "passed_criteria": 5,
+      "total_criteria": 5,
+      "response_time_s": 17.54,
+      "response_preview": "Great news \u2014 you're already **92% of the way to your 10,000 step goal!** \ud83c\udfaf You just need about **800 more steps per day** to consistently hit it. Here's what I found and my tips:\n\n## Your Patterns\n- *"
+    },
+    {
+      "test": "Goal Progress Check",
+      "score": 80,
+      "passed_criteria": 4,
+      "total_criteria": 5,
+      "response_time_s": 8.9,
+      "response_preview": "Here's your weekly breakdown! \ud83d\udcca\n\n**You hit your 10,000 step goal on 2 out of 7 days this week.**\n\n| Date | Steps | Goal Met? |\n|------|-------|-----------|\n| Apr 5 | 11,000 | \u2705 |\n| Apr 3 | 10,200 | \u2705 "
+    },
+    {
+      "test": "No Data \u2014 Graceful Handling",
+      "score": 100,
+      "passed_criteria": 5,
+      "total_criteria": 5,
+      "response_time_s": 4.49,
+      "response_preview": "Hey there! \ud83d\udc4b I'd love to help you see how you're doing with your fitness progress!\n\nTo give you a meaningful update, I'll need a bit of info:\n\n1. **Your recent step data** \u2013 You can share this by:\n   "
+    }
+  ]
+}
